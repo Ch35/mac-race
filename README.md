@@ -1,22 +1,7 @@
 TODO:
-- Design pages:
-  - Login page (stateless session)
-  - Read only table view
-  - Admin table view (desktop only)
-    - Dual table view
-    - All start (should be able to multi select by class)
-    - 12h and 24h race view
-    - Modals:
-      - Add team
-      - Hover over record
-      - "Are you sure?" (Maybe can just alter button text instead)
-      - Settings
-        - Race start
-        - Handicap
-        - Boat classes
-        - Max lap time
-        - Min lap time
-
-- 12h should stop the race 
-- Implement pocketbase
-- Test vercel as prod server
+- Lap and undo lap buttons (API requests)
+- Calculate avg and fastest times
+- Ensure that the auth actually works
+- Make sure home page is publically accessible
+- Implement flag editting
+- Implement boat edit
