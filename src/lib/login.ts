@@ -1,7 +1,6 @@
 'use server'
 
 import { JWTPayload, SignJWT, jwtVerify } from "jose";
-import { isEmpty } from "lodash";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { NextRequest, NextResponse } from "next/server";
@@ -64,14 +63,14 @@ export async function getSession() {
   if (!session) return false;
   const decrypted = await decrypt(session);
 
-  return isEmpty(decrypted) ? false : decrypted;
+  return Object.keys(decrypted).length === 0 ? false : decrypted;
 }
 
 export async function updateSession(request: NextRequest) {
   const session = request.cookies.get("session")?.value;
   if (!session) return;
   const parsed = await decrypt(session);
-  if (!parsed || isEmpty(parsed)) return;
+  if (!parsed || Object.keys(parsed).length === 0) return;
 
   parsed.expires = new Date(TOMORROW);
   const res = NextResponse.next();

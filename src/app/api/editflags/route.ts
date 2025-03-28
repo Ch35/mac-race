@@ -1,13 +1,12 @@
 import prisma from "@/lib/prisma";
-import { isInteger } from "lodash";
 import { NextResponse } from "next/server";
 
 export async function POST(request: Request) {
   try {
     const flags = await request.json();
 
-    if (!flags?.min.trim() || !isInteger(+flags.min)) return NextResponse.json({ error: 'Invalid minimum lap time' }, { status: 500 });
-    if (!flags?.max.trim() || !isInteger(+flags.max)) return NextResponse.json({ error: 'Invalid max lap time' }, { status: 500 });
+    if (!flags?.min.trim() || !Number.isInteger(Number(flags.min))) return NextResponse.json({ error: 'Invalid minimum lap time' }, { status: 500 });
+    if (!flags?.max.trim() || !Number.isInteger(Number(flags.max))) return NextResponse.json({ error: 'Invalid max lap time' }, { status: 500 });
 
     await prisma.race.updateMany({
       data: {
