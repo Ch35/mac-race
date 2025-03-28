@@ -1,12 +1,11 @@
 "use client";
 
 import { useState } from "react";
-import { Table as MTable, ScrollArea, Button, Skeleton } from "@mantine/core";
-// import { Boat, Class, Lap } from "@prisma/client";
-import { Flag, Edit } from "react-feather";
+import { Table as MTable, ScrollArea, Skeleton } from "@mantine/core";
 import classes from "./Table.module.css";
 import cx from 'clsx';
 import { useTable } from "./hooks";
+import { Rows } from "./Rows";
 
 export default function Table() {
   const [scrolled, setScrolled] = useState(false);
@@ -22,27 +21,13 @@ export default function Table() {
     );
   }
 
-  const rows = data.map((boat) => {
-    return (
-      <MTable.Tr key={boat.id}>
-        <MTable.Td>{boat.id}</MTable.Td>
-        <MTable.Td>{boat.name}</MTable.Td>
-        <MTable.Td>{boat.class.name}</MTable.Td>
-        <MTable.Td>{boat.class.handicap}</MTable.Td>
-        <MTable.Td>{boat.laps.length}</MTable.Td>
-        <MTable.Td>{boat.laps.length * boat.class.handicap}</MTable.Td>
-        <MTable.Td>TODO</MTable.Td>
-        <MTable.Td>TODO</MTable.Td>
-      </MTable.Tr>
-    );
-  });
-
   return (
     <div className={classes.tableContainer}>
       <ScrollArea h='calc(100vh - 135px)' onScrollPositionChange={({ y }) => setScrolled(y !== 0)}>
         <MTable miw={700} mr='none' verticalSpacing="xs">
           <MTable.Thead className={cx(classes.header, { [classes.scrolled]: scrolled })}>
             <MTable.Tr>
+              <MTable.Th>Race</MTable.Th>
               <MTable.Th>Sail Number</MTable.Th>
               <MTable.Th>Name</MTable.Th>
               <MTable.Th>Class</MTable.Th>
@@ -53,7 +38,7 @@ export default function Table() {
               <MTable.Th>Lap Time (Fastest)</MTable.Th>
             </MTable.Tr>
           </MTable.Thead>
-          <MTable.Tbody>{rows}</MTable.Tbody>
+          <MTable.Tbody><Rows data={data} /></MTable.Tbody>
         </MTable>
       </ScrollArea>
     </div>

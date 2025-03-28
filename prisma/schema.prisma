@@ -21,6 +21,7 @@ model Race {
   minLapTime Int
   maxLapTime Int
   boats      Boat[]
+  lapStarted Boolean   @default(false)
 }
 
 model Class {

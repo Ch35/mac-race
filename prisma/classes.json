@@ -32,16 +32,16 @@
     "handicap": 1
   },
   {
-    "name": "ILCA 7",
+    "name": "Laser",
     "handicap": 0.98
   },
   {
-    "name": "ILCA 6",
-    "handicap": 1.026
+    "name": "Sonnet",
+    "handicap": 0.89
   },
   {
-    "name": "ILCA 4",
-    "handicap": 1.079
+    "name": "TSL",
+    "handicap": 1.05
   },
   {
     "name": "Mirror",

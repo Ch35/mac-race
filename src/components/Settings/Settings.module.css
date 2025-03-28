@@ -3,3 +3,17 @@
   padding: 12px 25px;
   align-items: center;
 }
+
+.hideSettingsContainer {
+  margin: 10px 25px;
+}
+
+.hideSettingsBtn {
+  transition-duration: 0.2s;
+  transition-timing-function: ease-in-out;
+
+  &:hover {
+    cursor: pointer;
+    color: white;
+  }
+}

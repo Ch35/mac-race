@@ -2,16 +2,23 @@ import { NextRequest, NextResponse } from "next/server";
 import { updateSession, getSession } from "@/lib/login";
 
 export async function middleware(request: NextRequest) {
-  const endpoints = [
-    '/login',
-    '/api'
+  const authEndpoints = [
+    '/admin',
+    '/api/boats/add',
+    '/api/lap',
+    '/api/lap',
+    '/api/races/start',
+    '/api/editflags',
   ];
 
-  if (!endpoints.some((endpoint) => request.url.includes(endpoint))) {
+  if (request.url.includes('/login')) {
     return await updateSession(request);
   }
 
-  if (!request.url.includes('/login') && !await getSession()) {
+  const session = await getSession();
+  const isAuthEndpoint = authEndpoints.some((endpoint) => request.url.includes(endpoint));
+
+  if (isAuthEndpoint && !session) {
     if (request.method === 'POST') {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }

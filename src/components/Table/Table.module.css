@@ -21,3 +21,18 @@
 .tableContainer {
   padding: 10px 30px;
 }
+
+.hideRaceContainer {
+  margin: 10px 50px;
+}
+
+.hideRaceBtn {
+  float: right;
+  transition-duration: 0.2s;
+  transition-timing-function: ease-in-out;
+
+  &:hover {
+    cursor: pointer;
+    color: yellow;
+  }
+}

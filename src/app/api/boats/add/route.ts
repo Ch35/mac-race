@@ -22,7 +22,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Failed to create boat - Unable to find race' }, { status: 500 });
     }
 
-    const created = await prisma.boat.create({
+    await prisma.boat.create({
       data: {
         id: boat.number.trim(),
         name: boat.name.trim(),
@@ -32,8 +32,6 @@ export async function POST(request: Request) {
         }
       }
     });
-
-    console.log({ created }); //! d 
 
     return NextResponse.json({ name: boat.name }, { status: 200 });
   } catch (error) {
