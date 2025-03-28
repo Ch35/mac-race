@@ -1,0 +1,2 @@
+-- AlterTable
+ALTER TABLE "Lap" ALTER COLUMN "end" DROP NOT NULL;

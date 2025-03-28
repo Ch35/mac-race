@@ -1,0 +1,50 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Race {
+  id         Int      @id @default(autoincrement())
+  name       String
+  start      DateTime
+  end        DateTime
+  minLapTime Int
+  maxLapTime Int
+  boats      Boat[]
+  lapStarted Boolean   @default(false)
+}
+
+model Class {
+  id       Int    @id @default(autoincrement())
+  boats    Boat[]
+  name     String
+  handicap Float  @default(1)
+}
+
+model Boat {
+  id       String    @id @unique
+  races    Race[]
+  name     String
+  class    Class     @relation(fields: [classId], references: [id])
+  classId  Int
+  laps     Lap[]
+  hidden   Boolean   @default(false)
+}
+
+model Lap {
+  id        Int      @id @default(autoincrement())
+  start     DateTime
+  end       DateTime?
+  boat      Boat     @relation(fields: [boatId], references: [id])
+  boatId    String
+}

@@ -1,22 +1,14 @@
 TODO:
-- Design pages:
-  - Login page (stateless session)
-  - Read only table view
-  - Admin table view (desktop only)
-    - Dual table view
-    - All start (should be able to multi select by class)
-    - 12h and 24h race view
-    - Modals:
-      - Add team
-      - Hover over record
-      - "Are you sure?" (Maybe can just alter button text instead)
-      - Settings
-        - Race start
-        - Handicap
-        - Boat classes
-        - Max lap time
-        - Min lap time
+- Implement boat edit
 
-- 12h should stop the race 
-- Implement pocketbase
-- Test vercel as prod server
+# Caveats
+- A single admin should be viewing `/admin` at a time
+  - Multiple admins clicking can cause duplicate data and other potential issues
+- An admin needs to be on `/admin` before the race starts to auto initialise laps
+  - If a connection error occurs, you can manually "Reset Last Laps" based on either race
+  - "Reset Last Laps" only works on ACTIVE races - races that have NOT ended and HAVE started
+
+# Notes
+- The flag indicator will show up for boats if:
+  - the race has started and it has no started laps
+  - the current lap time exceeds the maximum lap time

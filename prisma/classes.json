@@ -1,0 +1,70 @@
+[
+  {
+    "name": "420",
+    "handicap": 0.95
+  },
+  {
+    "name": "Bosun",
+    "handicap": 1.05
+  },
+  {
+    "name": "Bosun IZI",
+    "handicap": 1.02
+  },
+  {
+    "name": "Dabchick DH",
+    "handicap": 1.15
+  },
+  {
+    "name": "Enterprise",
+    "handicap": 1
+  },
+  {
+    "name": "Extra",
+    "handicap": 1.032
+  },
+  {
+    "name": "Finn",
+    "handicap": 0.96
+  },
+  {
+    "name": "GP14",
+    "handicap": 1
+  },
+  {
+    "name": "Laser",
+    "handicap": 0.98
+  },
+  {
+    "name": "Sonnet",
+    "handicap": 0.89
+  },
+  {
+    "name": "TSL",
+    "handicap": 1.05
+  },
+  {
+    "name": "Mirror",
+    "handicap": 1.16
+  },
+  {
+    "name": "Pico DH",
+    "handicap": 1.3
+  },
+  {
+    "name": "RS Feva",
+    "handicap": 1
+  },
+  {
+    "name": "RS Q'ba",
+    "handicap": 1.22
+  },
+  {
+    "name": "Saldanha",
+    "handicap": 1.275
+  },
+  {
+    "name": "Topaz",
+    "handicap": 1.120
+  }
+]

@@ -1,0 +1,13 @@
+.logout {
+    position: absolute;
+    bottom: 10px;
+    right: 50%;
+}
+
+.errorAlert {
+    position: absolute;
+    top: 5px;
+    right: 10%;
+    max-width: 300px;
+    z-index: 1000;
+  }
