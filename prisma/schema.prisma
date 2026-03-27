@@ -39,6 +39,8 @@ model Boat {
   classId  Int
   laps     Lap[]
   hidden   Boolean   @default(false)
+
+  @@index([classId])
 }
 
 model Lap {
@@ -47,4 +49,7 @@ model Lap {
   end       DateTime? @db.Timestamptz
   boat      Boat      @relation(fields: [boatId], references: [id])
   boatId    String
+
+  @@index([boatId])
+  @@index([boatId, start])
 }
