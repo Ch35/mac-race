@@ -256,12 +256,13 @@ export const Rows = ({ data }: RowsProps) => {
     return lapsB - lapsA;
   });
 
-  return sortedData.map((boat) => {
+  return sortedData.map((boat, index) => {
     const hasLaps = boat.laps.length > 0;
     const numLaps = hasLaps ? boat.laps.filter((lap) => lap.end && lap.start).length : 0;
 
     return (
       <Table.Tr key={boat.id}>
+        <Table.Td>{index + 1}</Table.Td>
         <Table.Td>{boat.id}</Table.Td>
         <Table.Td>{boat.name}</Table.Td>
         <Table.Td>{boat.class.name}</Table.Td>
