@@ -24,7 +24,6 @@ export default function Admin() {
       <Settings
         loading={loading}
         races={races}
-        setError={setError}
         tableRef={tableRef}
       />
       <AdminTable

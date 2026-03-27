@@ -6,54 +6,21 @@ import { useDisclosure } from "@mantine/hooks";
 import classes from './Settings.module.css';
 import { Eye, EyeOff, PlusSquare, Settings as SettingsIcon } from 'react-feather';
 import AddBoat from "./AddBoat";
-import { Race } from "@prisma/client";
-import { RaceWithStart, SetError } from "../Table/hooks";
-import { mutate } from "swr";
+import { RaceWithStart } from "../Table/hooks";
 import EditFlags from "./EditFlags";
 import * as XLSX from "xlsx";
 
 type Props = {
   loading: boolean,
   races: RaceWithStart[],
-  setError: SetError,
   tableRef: RefObject<HTMLTableElement | null>,
 };
 
-export default function Settings({ loading, races, tableRef, setError }: Props) {
+export default function Settings({ loading, races, tableRef }: Props) {
   const [opened, { open, close }] = useDisclosure(false);
   const [hidden, setHidden] = useState(false);
   const [modal, setModal] = useState<React.ReactNode>(null);
   const [modalTitle, setModalTitle] = useState('');
-
-  const startRace = (race: Race) => {
-    fetch('/api/races/start', {
-      method: 'POST',
-      body: JSON.stringify({ raceId: race.id, ignoreActive: true }),
-    }).then((res) => {
-      res.json().then((body) => {
-        if (body.started) {
-          mutate('/api/boats');
-        } else {
-          setError(`${race.name} race already started`);
-        }
-      });
-      mutate('/api/boats');
-    }).catch(() => {
-      setError('Unable to start race');
-    });
-  }
-
-  const start24h = () => {
-    const race = races.find((race) => race.name.includes('24h') && race.active);
-    if (!race) return setError('Unable to find active 24h race');
-    return startRace(race);
-  }
-
-  const start12h = () => {
-    const race = races.find((race) => race.name.includes('12h') && race.active);
-    if (!race) return setError('Unable to find active 12h race');
-    return startRace(race);
-  }
 
   const toggleHidden = () => {
     setHidden(!hidden);
@@ -124,8 +91,6 @@ export default function Settings({ loading, races, tableRef, setError }: Props) 
             <Button variant="outline" onClick={() => openSetting('addBoat')}><PlusSquare style={{ marginRight: '5px' }} /> Add Boat</Button>
             <Button onClick={() => openSetting('flags')}><SettingsIcon style={{ marginRight: '5px' }} /> Flags</Button>
             <div></div>
-            <Button variant="outline" onClick={start24h}>Reset 24h Last Laps</Button>
-            <Button variant="outline" onClick={start12h}>Reset 12h Last Laps</Button>
             <div></div>
             <Button variant="outline" onClick={exportData}>Export</Button>
           </SimpleGrid>

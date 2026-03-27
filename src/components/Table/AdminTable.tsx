@@ -5,7 +5,7 @@ import { Table as MTable, ScrollArea, Skeleton } from "@mantine/core";
 import { Zap, ZapOff } from "react-feather";
 import classes from "./Table.module.css";
 import cx from 'clsx';
-import { BoatWithClass, RaceWithStart, SetError, useRace } from "./hooks";
+import { BoatWithClass, RaceWithStart, SetError } from "./hooks";
 import { RowsAdmin } from "./Rows";
 
 type Props = {
@@ -19,7 +19,6 @@ type Props = {
 export default function AdminTable({ data, races, loading, setError, tableRef }: Props) {
   const [scrolled, setScrolled] = useState(false);
   const [hideInactiveRace, setHideInactiveRace] = useState(false);
-  useRace(races, loading, setError);
 
   const toggleHideInactiveRace = () => setHideInactiveRace(!hideInactiveRace);
 
