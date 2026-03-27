@@ -262,7 +262,6 @@ export const Rows = ({ data }: RowsProps) => {
 
     return (
       <Table.Tr key={boat.id}>
-        <Table.Td>{boat.races.length > 0 ? boat.races[0].name.slice(0, 3) : null}</Table.Td>
         <Table.Td>{boat.id}</Table.Td>
         <Table.Td>{boat.name}</Table.Td>
         <Table.Td>{boat.class.name}</Table.Td>
