@@ -16,7 +16,15 @@ export async function POST() {
     });
 
     const sortedBoats = [...boats].sort((a, b) => {
-      return a.laps.length - b.laps.length;
+      const aLastLap = a.laps.length > 0 ? a.laps[a.laps.length - 1].start : null;
+      const bLastLap = b.laps.length > 0 ? b.laps[b.laps.length - 1].start : null;
+      
+      // Boats with no laps go to the end
+      if (!aLastLap && !bLastLap) return 0;
+      if (!aLastLap) return 1;
+      if (!bLastLap) return -1;
+      
+      return new Date(aLastLap).getTime() - new Date(bLastLap).getTime();
     });
 
     return NextResponse.json(sortedBoats, { status: 200 });
