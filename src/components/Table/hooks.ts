@@ -137,6 +137,8 @@ export const useBoatsFlagged = (boats: BoatWithClass[], races: RaceWithStart[]) 
   const [boatsFlagged, setBoatsFlagged] = useState<Record<string, boolean>>({});
 
   const setFlags = () => {
+    const newFlags: Record<string, boolean> = {};
+
     boats.forEach((boat) => {
       const hasLaps = boat.laps.length > 0;
       const lastLapIndex = boat.laps.length - 1;
@@ -152,8 +154,10 @@ export const useBoatsFlagged = (boats: BoatWithClass[], races: RaceWithStart[]) 
         : false;
       const flagged = !!(!hasRaces || flagLastLap || (raceActive && !hasLaps));
 
-      setBoatsFlagged({ ...boatsFlagged, [boat.id]: flagged });
+      newFlags[boat.id] = flagged;
     });
+
+    setBoatsFlagged(newFlags);
   }
 
   useEffect(() => {

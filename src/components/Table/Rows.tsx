@@ -33,7 +33,7 @@ const getAvgLapTime = (laps: Lap[]) => {
 const getBestLapTime = (laps: Lap[]) => {
   const validLaps = laps.filter((lap) => lap.start && lap.end);
   if (validLaps.length === 0) return '';
-  
+
   const bestLap = validLaps.reduce((best, lap) => {
     const start = new Date(lap.start).getTime();
     const end = lap.end ? new Date(lap.end).getTime() : 0;
@@ -102,28 +102,30 @@ export const RowsAdmin = ({ data, races, setError, hideInactiveRace }: RowsAdmin
       setBoatsUndoConfirm({ ...boatsUndoConfirm, [boatId]: false });
     }, 3000);
 
-    if (boatsUndoConfirm[boatId]) {
-      setBoatsLapDisabled({ ...boatsLapDisabled, [boatId]: true });
-      setBoatsUndoConfirmDisabled({ ...boatsUndoDisabled, [boatId]: true });
-      const config = {
-        method: "POST",
-        body: JSON.stringify({ id: boatId }),
-      };
-
-      fetch("/api/boats/lap/undo", config).then((res) => {
-        setBoatsLapDisabled({ ...boatsLapDisabled, [boatId]: false });
-        setBoatsUndoConfirmDisabled({ ...boatsUndoDisabled, [boatId]: false });
-
-        if (!res.ok) {
-          setError(`Failed to undo lap for [${boatId}]`);
-        } else {
-          setBoatsLapDisabled({ ...boatsLapDisabled, [boatId]: false });
-          if (updateData) mutate("/api/boats");
-        }
-
-        setBoatsUndoConfirm({ ...boatsUndoConfirm, [boatId]: false });
-      });
+    if (!boatsUndoConfirm[boatId]) {
+      return;
     }
+
+    setBoatsLapDisabled({ ...boatsLapDisabled, [boatId]: true });
+    setBoatsUndoConfirmDisabled({ ...boatsUndoDisabled, [boatId]: true });
+    const config = {
+      method: "POST",
+      body: JSON.stringify({ id: boatId }),
+    };
+
+    fetch("/api/boats/lap/undo", config).then((res) => {
+      setBoatsLapDisabled({ ...boatsLapDisabled, [boatId]: false });
+      setBoatsUndoConfirmDisabled({ ...boatsUndoDisabled, [boatId]: false });
+
+      if (!res.ok) {
+        setError(`Failed to undo lap for [${boatId}]`);
+      } else {
+        setBoatsLapDisabled({ ...boatsLapDisabled, [boatId]: false });
+        if (updateData) mutate("/api/boats");
+      }
+
+      setBoatsUndoConfirm({ ...boatsUndoConfirm, [boatId]: false });
+    });
   }
 
   const getRowData = (boat: BoatWithClass) => {
@@ -145,7 +147,7 @@ export const RowsAdmin = ({ data, races, setError, hideInactiveRace }: RowsAdmin
       disabled: !raceActive || !hasLaps || undoLapBtnDisabled,
       variant: "light",
       onClick: () => undoLap(boat.id),
-      text: confirmUndoLap ? "Confirm?" : "Reset Lap",
+      text: confirmUndoLap ? "Confirm?" : "Undo Lap",
       color: confirmUndoLap ? "red" : "green",
     };
 
@@ -163,7 +165,7 @@ export const RowsAdmin = ({ data, races, setError, hideInactiveRace }: RowsAdmin
   }
 
   return data.map((boat) => {
-    const { 
+    const {
       hasLaps,
       start,
       hasRaces,
@@ -171,7 +173,7 @@ export const RowsAdmin = ({ data, races, setError, hideInactiveRace }: RowsAdmin
       lapBtnDisabled,
       numLaps,
       flagged,
-      undoLapProps 
+      undoLapProps
     } = getRowData(boat);
 
     return (

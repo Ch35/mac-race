@@ -8,53 +8,45 @@ export async function POST(request: Request) {
     if (!body?.id) return NextResponse.json({ error: 'Invalid boat ID' }, { status: 500 });
     if (!await prisma.boat.findFirst({ where: { id: body.id } })) return NextResponse.json({ error: 'Cannot find boat' }, { status: 500 });
 
-    const recentLap = await prisma.lap.findFirst({
+    // Find the current in-progress lap (end is null)
+    const currentLap = await prisma.lap.findFirst({
       where: {
         boatId: body.id,
+        end: null,
+      },
+    });
+
+    if (!currentLap) return NextResponse.json({ error: 'No active lap found' }, { status: 500 });
+
+    // Find the most recently completed lap (has an end time)
+    const previousLap = await prisma.lap.findFirst({
+      where: {
+        boatId: body.id,
+        end: { not: null },
       },
       orderBy: {
         end: 'desc',
       },
     });
 
-    if (!recentLap) return NextResponse.json({ error: 'No recent lap found' }, { status: 500 });
-
-    await prisma.lap.update({
+    // Delete the current in-progress lap
+    await prisma.lap.delete({
       where: {
-        id: recentLap.id,
-      },
-      data: {
-        start: new Date(),
-        end: null,
+        id: currentLap.id,
       },
     });
 
-    // const previousLap = await prisma.lap.findFirst({
-    //   where: {
-    //     boatId: body.id,
-    //     end: recentLap.start,
-    //   },
-    //   orderBy: {
-    //     end: 'desc',
-    //   },
-    // });
-
-    // if (previousLap) {
-    //   await prisma.lap.update({
-    //     where: {
-    //       id: previousLap.id,
-    //     },
-    //     data: {
-    //       end: null,
-    //     },
-    //   });
-    // }
-
-    // await prisma.lap.delete({
-    //   where: {
-    //     id: recentLap.id,
-    //   },
-    // });
+    // Reopen the previous completed lap by clearing its end time
+    if (previousLap) {
+      await prisma.lap.update({
+        where: {
+          id: previousLap.id,
+        },
+        data: {
+          end: null,
+        },
+      });
+    }
 
     return NextResponse.json({ undone: true }, { status: 200 });
   } catch (error) {
