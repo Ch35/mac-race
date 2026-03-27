@@ -34,12 +34,14 @@ export async function POST(request: Request) {
         return NextResponse.json({ error: errorMsg }, { status: 500 });
       }
 
-      // Enforce minimum lap time
-      const minLapTime = firstRace.minLapTime;
-      const lapTimeSec = (lapEnd.getTime() - recentUnfinishedLap.start.getTime()) / 1000;
+      // Enforce minimum lap time unless force is set
+      if (!body.force) {
+        const minLapTime = firstRace.minLapTime;
+        const lapTimeSec = (lapEnd.getTime() - recentUnfinishedLap.start.getTime()) / 1000;
 
-      if(minLapTime * 60 > lapTimeSec) {
-        return NextResponse.json({ error: `Lap is less than ${minLapTime} minute(s)` }, { status: 500 });
+        if(minLapTime * 60 > lapTimeSec) {
+          return NextResponse.json({ error: `Lap is less than ${minLapTime} minute(s)` }, { status: 500 });
+        }
       }
 
       await prisma.lap.update({ 

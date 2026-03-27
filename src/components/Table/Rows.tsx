@@ -56,6 +56,7 @@ const lapButtonTimeout = 1000;
 
 export const RowsAdmin = ({ data, races, setError, hideInactiveRace }: RowsAdminProps) => {
   const [boatsLapDisabled, setBoatsLapDisabled] = useState<Record<string, boolean>>({});
+  const [boatsLapConfirm, setBoatsLapConfirm] = useState<Record<string, boolean>>({});
   const [boatsUndoConfirm, setBoatsUndoConfirm] = useState<Record<string, boolean>>({});
   const [boatsUndoDisabled, setBoatsUndoConfirmDisabled] = useState<Record<string, boolean>>({});
   const boatsFlagged = useBoatsFlagged(data, races);
@@ -65,22 +66,46 @@ export const RowsAdmin = ({ data, races, setError, hideInactiveRace }: RowsAdmin
   //   // Open modal to edit boat
   // }
 
-  const lap = (boatId: string, updateData = true) => {
-    setBoatsLapDisabled({ ...boatsLapDisabled, [boatId]: true });
-    setBoatsUndoConfirmDisabled({ ...boatsUndoDisabled, [boatId]: true });
+  const isLapUnderMinTime = (boat: BoatWithClass) => {
+    const hasLaps = boat.laps.length > 0;
+    if (!hasLaps) return false;
+
+    const lastLap = boat.laps[boat.laps.length - 1];
+    if (lastLap.end) return false; // No active lap
+
+    const minLapTime = boat.races[0]?.minLapTime ?? 0;
+    const lapTimeSec = (Date.now() - new Date(lastLap.start).getTime()) / 1000;
+    return minLapTime * 60 > lapTimeSec;
+  };
+
+  const lap = (boatId: string, updateData = true, force = false) => {
+    const boat = data.find(b => b.id === boatId);
+    
+    // Check if lap is under minimum time and needs confirmation
+    if (!force && boat && isLapUnderMinTime(boat)) {
+      setBoatsLapConfirm(prev => ({ ...prev, [boatId]: true }));
+      setTimeout(() => {
+        setBoatsLapConfirm(prev => ({ ...prev, [boatId]: false }));
+      }, 3000);
+      return;
+    }
+
+    setBoatsLapConfirm(prev => ({ ...prev, [boatId]: false }));
+    setBoatsLapDisabled(prev => ({ ...prev, [boatId]: true }));
+    setBoatsUndoConfirmDisabled(prev => ({ ...prev, [boatId]: true }));
 
     setTimeout(() => {
-      setBoatsLapDisabled({ ...boatsLapDisabled, [boatId]: false });
+      setBoatsLapDisabled(prev => ({ ...prev, [boatId]: false }));
     }, lapButtonTimeout);
 
     fetch("/api/boats/lap", {
       method: "POST",
-      body: JSON.stringify({ id: boatId }),
+      body: JSON.stringify({ id: boatId, force }),
     }).then((res) => {
-      setBoatsUndoConfirmDisabled({ ...boatsUndoDisabled, [boatId]: false });
+      setBoatsUndoConfirmDisabled(prev => ({ ...prev, [boatId]: false }));
 
       if (!res.ok) {
-        setBoatsLapDisabled({ ...boatsLapDisabled, [boatId]: false });
+        setBoatsLapDisabled(prev => ({ ...prev, [boatId]: false }));
 
         res.json().then((data) => {
           let errorMsg = `Failed to create lap for [${boatId}]`;
@@ -96,35 +121,34 @@ export const RowsAdmin = ({ data, races, setError, hideInactiveRace }: RowsAdmin
   }
 
   const undoLap = (boatId: string, updateData = true) => {
-    setBoatsUndoConfirm({ ...boatsUndoConfirm, [boatId]: true });
+    setBoatsUndoConfirm(prev => ({ ...prev, [boatId]: true }));
 
     setTimeout(() => {
-      setBoatsUndoConfirm({ ...boatsUndoConfirm, [boatId]: false });
+      setBoatsUndoConfirm(prev => ({ ...prev, [boatId]: false }));
     }, 3000);
 
     if (!boatsUndoConfirm[boatId]) {
       return;
     }
 
-    setBoatsLapDisabled({ ...boatsLapDisabled, [boatId]: true });
-    setBoatsUndoConfirmDisabled({ ...boatsUndoDisabled, [boatId]: true });
+    setBoatsLapDisabled(prev => ({ ...prev, [boatId]: true }));
+    setBoatsUndoConfirmDisabled(prev => ({ ...prev, [boatId]: true }));
     const config = {
       method: "POST",
       body: JSON.stringify({ id: boatId }),
     };
 
     fetch("/api/boats/lap/undo", config).then((res) => {
-      setBoatsLapDisabled({ ...boatsLapDisabled, [boatId]: false });
-      setBoatsUndoConfirmDisabled({ ...boatsUndoDisabled, [boatId]: false });
+      setBoatsLapDisabled(prev => ({ ...prev, [boatId]: false }));
+      setBoatsUndoConfirmDisabled(prev => ({ ...prev, [boatId]: false }));
 
       if (!res.ok) {
         setError(`Failed to undo lap for [${boatId}]`);
       } else {
-        setBoatsLapDisabled({ ...boatsLapDisabled, [boatId]: false });
         if (updateData) mutate("/api/boats");
       }
 
-      setBoatsUndoConfirm({ ...boatsUndoConfirm, [boatId]: false });
+      setBoatsUndoConfirm(prev => ({ ...prev, [boatId]: false }));
     });
   }
 
@@ -141,6 +165,7 @@ export const RowsAdmin = ({ data, races, setError, hideInactiveRace }: RowsAdmin
     const undoLapBtnDisabled = !raceActive || (boatsUndoDisabled.hasOwnProperty(boat.id) ? boatsUndoDisabled[boat.id] : false);
     const numLaps = hasLaps ? boat.laps.filter((lap) => lap.end && lap.start).length : 0;
     const confirmUndoLap = boatsUndoConfirm.hasOwnProperty(boat.id) ? boatsUndoConfirm[boat.id] : false;
+    const confirmLap = boatsLapConfirm.hasOwnProperty(boat.id) ? boatsLapConfirm[boat.id] : false;
     const flagged = boatsFlagged.hasOwnProperty(boat.id) ? boatsFlagged[boat.id] : false;
 
     const undoLapProps = {
@@ -149,6 +174,14 @@ export const RowsAdmin = ({ data, races, setError, hideInactiveRace }: RowsAdmin
       onClick: () => undoLap(boat.id),
       text: confirmUndoLap ? "Confirm?" : "Undo Lap",
       color: confirmUndoLap ? "red" : "green",
+    };
+
+    const lapBtnProps = {
+      disabled: lapBtnDisabled,
+      variant: confirmLap ? "filled" : "outline",
+      onClick: () => lap(boat.id, true, confirmLap),
+      text: confirmLap ? "Confirm?" : "Lap",
+      color: confirmLap ? "red" : "green",
     };
 
     return {
@@ -161,6 +194,7 @@ export const RowsAdmin = ({ data, races, setError, hideInactiveRace }: RowsAdmin
       numLaps,
       flagged,
       undoLapProps,
+      lapBtnProps,
     };
   }
 
@@ -170,10 +204,10 @@ export const RowsAdmin = ({ data, races, setError, hideInactiveRace }: RowsAdmin
       start,
       hasRaces,
       raceActive,
-      lapBtnDisabled,
       numLaps,
       flagged,
-      undoLapProps
+      undoLapProps,
+      lapBtnProps
     } = getRowData(boat);
 
     return (
@@ -207,7 +241,7 @@ export const RowsAdmin = ({ data, races, setError, hideInactiveRace }: RowsAdmin
           {hasRaces && (
             <SimpleGrid cols={2} spacing="5">
               <Button {...undoLapProps}>{undoLapProps.text}</Button>
-              <Button disabled={lapBtnDisabled} variant="outline" id={boat.id} onClick={() => lap(boat.id)}>Lap</Button>
+              <Button {...lapBtnProps} id={boat.id}>{lapBtnProps.text}</Button>
             </SimpleGrid>
           )}
         </Table.Td>

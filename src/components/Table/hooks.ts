@@ -14,7 +14,6 @@ export type RaceWithStart = RaceWithBoats & { active: boolean };
 const hasBothRacesStarted = (races: RaceWithStart[]) => {
   const race24hStarted = !!races.find((race) => race.name === '24h')?.active;
   const race12hStarted = !!races.find((race) => race.name.includes('12h') && race.active)?.active;
-  console.debug({ bothRacesStarted: race24hStarted && race12hStarted });
 
   return race24hStarted && race12hStarted;
 }
