@@ -28,21 +28,29 @@ async function getRacesData() {
 
 export async function GET() {
   const encoder = new TextEncoder();
+  let isClosed = false;
+  let cleanup: (() => void) | null = null;
 
   const stream = new ReadableStream({
     async start(controller) {
       // Send initial data
       const sendData = async () => {
+        if (isClosed) return;
+        
         try {
           const [boats, races] = await Promise.all([
             getBoatsData(),
             getRacesData(),
           ]);
 
+          if (isClosed) return;
+          
           const data = JSON.stringify({ boats, races });
           controller.enqueue(encoder.encode(`data: ${data}\n\n`));
         } catch (error) {
-          console.error('SSE data fetch error:', error);
+          if (!isClosed) {
+            console.error('SSE data fetch error:', error);
+          }
         }
       };
 
@@ -56,26 +64,30 @@ export async function GET() {
 
       // Keep connection alive with heartbeat
       const heartbeat = setInterval(() => {
+        if (isClosed) {
+          clearInterval(heartbeat);
+          return;
+        }
         try {
           controller.enqueue(encoder.encode(`: heartbeat\n\n`));
         } catch {
           // Connection closed
+          isClosed = true;
           clearInterval(heartbeat);
           unsubscribe();
         }
       }, 30000);
 
       // Cleanup on close
-      const cleanup = () => {
+      cleanup = () => {
+        isClosed = true;
         clearInterval(heartbeat);
         unsubscribe();
       };
-
-      // Store cleanup for potential cancellation
-      (controller as unknown as { cleanup?: () => void }).cleanup = cleanup;
     },
     cancel() {
       // Called when client disconnects
+      cleanup?.();
     },
   });
 
