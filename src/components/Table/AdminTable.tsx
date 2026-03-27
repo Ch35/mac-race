@@ -56,7 +56,7 @@ export default function AdminTable({ data, races, loading, setError, tableRef }:
                 <MTable.Th>Lap Time (Fastest)</MTable.Th>
                 <MTable.Th>Class</MTable.Th>
                 <MTable.Th>Name</MTable.Th>
-                <MTable.Th>Sail Number</MTable.Th>
+                <MTable.Th>Boat Number</MTable.Th>
                 <MTable.Th></MTable.Th>
                 <MTable.Th>Status</MTable.Th>
               </MTable.Tr>

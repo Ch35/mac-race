@@ -76,7 +76,7 @@ export default function Table({ autoScroll = false }: Props) {
           <MTable.Thead className={cx(classes.header, { [classes.scrolled]: scrolled })}>
             <MTable.Tr>
               <MTable.Th>Overall Position</MTable.Th>
-              <MTable.Th>Sail Number</MTable.Th>
+              <MTable.Th>Boat Number</MTable.Th>
               <MTable.Th>Name</MTable.Th>
               <MTable.Th>Class</MTable.Th>
               <MTable.Th>Handicap</MTable.Th>
