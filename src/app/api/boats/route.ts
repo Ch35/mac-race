@@ -4,7 +4,15 @@ import { NextResponse } from "next/server";
 export async function POST() {
   try {
     const boats = await prisma.boat.findMany({
-      include: { class: true, races: true, laps: true }
+      include: {
+        class: true,
+        races: true,
+        laps: {
+          orderBy: {
+            start: 'asc',
+          },
+        },
+      },
     });
 
     const sortedBoats = [...boats].sort((a, b) => {
