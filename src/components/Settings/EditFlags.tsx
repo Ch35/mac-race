@@ -1,7 +1,6 @@
 import { Button, Input, Loader, SimpleGrid } from "@mantine/core";
 import { Race } from "@prisma/client";
 import { useState } from "react";
-import { mutate } from "swr";
 
 type Props = { races: Race[], close: () => void };
 
@@ -26,8 +25,7 @@ export default function EditFlags({ races, close }: Props) {
     try {
       const body = await response.json();
       if (response.status === 200) {
-        mutate("/api/boats");
-        mutate("/api/races");
+        // SSE stream will automatically push updated data
         close();
       } else {
         setError(body?.error ?? 'An error occurred');

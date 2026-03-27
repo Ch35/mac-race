@@ -1,4 +1,5 @@
 import prisma from "@/lib/prisma";
+import { dataEvents } from "@/lib/events";
 import { NextResponse } from "next/server";
 
 export async function POST(request: Request) {
@@ -14,6 +15,8 @@ export async function POST(request: Request) {
         maxLapTime: +flags.max,
       }
     });
+
+    dataEvents.emit();
 
     return NextResponse.json({ success: true }, { status: 200 });
   } catch (error) {

@@ -1,10 +1,8 @@
 'use client'
 
-import { Dispatch, SetStateAction, useEffect, useState } from "react";
+import { Dispatch, SetStateAction, useEffect, useRef, useState } from "react";
 import { Boat, Class, Lap, Race } from "@prisma/client";
 import _ from 'lodash';
-import useSWR, { mutate } from "swr";
-import { fetcher } from "@/lib/api";
 import { isActive } from "@/lib/race";
 
 export type BoatWithClass = Boat & { class: Class, laps: Lap[], races: Race[] };
@@ -18,28 +16,45 @@ const hasBothRacesStarted = (races: RaceWithStart[]) => {
   return race24hStarted && race12hStarted;
 }
 
-const swrConfig = {
-  refreshInterval: 10000,
-  compare: (a: unknown, b: unknown) => JSON.stringify(a) === JSON.stringify(b),
-  dedupingInterval: 10000,
-};
-
 export const useTable = () => {
   const [loading, setLoading] = useState(true);
   const [data, setData] = useState<BoatWithClass[]>([]);
   const [races, setRaces] = useState<RaceWithStart[]>([]);
-  const { data: boatData, error: boatDataError }: { data: BoatWithClass[], error: unknown } = useSWR("/api/boats", fetcher, swrConfig);
-  const { data: raceData, error: raceDataError }: { data: RaceWithBoats[], error: unknown } = useSWR("/api/races", fetcher);
+  const eventSourceRef = useRef<EventSource | null>(null);
 
   useEffect(() => {
-    if (boatData && !boatDataError) setData(boatData);
-    if (raceData && !raceDataError) setRaces(raceData.map((race) => ({
-      ...race,
-      active: isActive(race),
-    })));
+    // Connect to SSE stream
+    const eventSource = new EventSource('/api/boats/stream');
+    eventSourceRef.current = eventSource;
 
-    if (boatData && raceData) setLoading(false);
-  }, [boatData, raceData, raceDataError, boatDataError]);
+    eventSource.onmessage = (event) => {
+      try {
+        const { boats, races: raceData } = JSON.parse(event.data);
+
+        if (boats) setData(boats);
+        if (raceData) {
+          setRaces(raceData.map((race: RaceWithBoats) => ({
+            ...race,
+            active: isActive(race),
+          })));
+        }
+
+        if (boats && raceData) setLoading(false);
+      } catch (error) {
+        console.error('SSE parse error:', error);
+      }
+    };
+
+    eventSource.onerror = (error) => {
+      console.error('SSE connection error:', error);
+      // EventSource will automatically try to reconnect
+    };
+
+    return () => {
+      eventSource.close();
+      eventSourceRef.current = null;
+    };
+  }, []);
 
   useEffect(() => {
     // no need to run this if both races have started
@@ -112,15 +127,10 @@ export const useRace = (races: RaceWithStart[], loading: boolean, setError: SetE
             method: 'POST',
             body: JSON.stringify({ raceId: race.id }),
           }).then((res) => {
-            if (res.ok) {
-              res.json().then((body) => {
-                if (body.started) {
-                  mutate('/api/boats');
-                }
-              });
-            } else {
+            if (!res.ok) {
               setError(`Failed to start race ${race.name}`);
             }
+            // SSE stream will automatically push updated data
           }).catch(() => {
             setError(`Failed to start race ${race.name}`);
           });

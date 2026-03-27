@@ -1,7 +1,6 @@
 import { Dispatch, SetStateAction, useState } from "react";
 import { Table, Button, SimpleGrid } from "@mantine/core";
 import { BoatWithClass, RaceWithStart, useBoatsFlagged } from "./hooks";
-import { mutate } from "swr";
 import { Flag } from "react-feather";
 import { Lap } from "@prisma/client";
 
@@ -78,7 +77,7 @@ export const RowsAdmin = ({ data, races, setError, hideInactiveRace }: RowsAdmin
     return minLapTime * 60 > lapTimeSec;
   };
 
-  const lap = (boatId: string, updateData = true, force = false) => {
+  const lap = (boatId: string, force = false) => {
     const boat = data.find(b => b.id === boatId);
     
     // Check if lap is under minimum time and needs confirmation
@@ -114,13 +113,12 @@ export const RowsAdmin = ({ data, races, setError, hideInactiveRace }: RowsAdmin
           }
           setError(errorMsg);
         });
-      } else {
-        if (updateData) mutate("/api/boats");
       }
+      // SSE stream will automatically push updated data
     });
   }
 
-  const undoLap = (boatId: string, updateData = true) => {
+  const undoLap = (boatId: string) => {
     setBoatsUndoConfirm(prev => ({ ...prev, [boatId]: true }));
 
     setTimeout(() => {
@@ -144,9 +142,8 @@ export const RowsAdmin = ({ data, races, setError, hideInactiveRace }: RowsAdmin
 
       if (!res.ok) {
         setError(`Failed to undo lap for [${boatId}]`);
-      } else {
-        if (updateData) mutate("/api/boats");
       }
+      // SSE stream will automatically push updated data
 
       setBoatsUndoConfirm(prev => ({ ...prev, [boatId]: false }));
     });
@@ -179,7 +176,7 @@ export const RowsAdmin = ({ data, races, setError, hideInactiveRace }: RowsAdmin
     const lapBtnProps = {
       disabled: lapBtnDisabled,
       variant: confirmLap ? "filled" : "outline",
-      onClick: () => lap(boat.id, true, confirmLap),
+      onClick: () => lap(boat.id, confirmLap),
       text: confirmLap ? "Confirm?" : "Lap",
       color: confirmLap ? "red" : "green",
     };

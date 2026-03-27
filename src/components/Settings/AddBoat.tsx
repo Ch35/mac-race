@@ -4,7 +4,7 @@ import { fetcher } from "@/lib/api";
 import { Button, Input, Loader, NativeSelect, SimpleGrid } from "@mantine/core";
 import { Class } from "@prisma/client";
 import { useState } from "react";
-import useSWR, { mutate } from "swr";
+import useSWR from "swr";
 
 export default function AddBoat() {
   const [loading, setLoading] = useState(false);
@@ -31,7 +31,7 @@ export default function AddBoat() {
       const body = await response.json();
 
       if (response.status === 200) {
-        mutate("/api/boats");
+        // SSE stream will automatically push updated data
         setSuccess(`${body.name} added successfully`);
       } else {
         setError(body?.error ?? 'An error occurred');

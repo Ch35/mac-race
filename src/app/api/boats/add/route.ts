@@ -1,4 +1,5 @@
 import prisma from "@/lib/prisma";
+import { dataEvents } from "@/lib/events";
 import { NextResponse } from "next/server";
 
 export async function POST(request: Request) {
@@ -32,6 +33,8 @@ export async function POST(request: Request) {
         }
       }
     });
+
+    dataEvents.emit();
 
     return NextResponse.json({ name: boat.name }, { status: 200 });
   } catch (error) {
