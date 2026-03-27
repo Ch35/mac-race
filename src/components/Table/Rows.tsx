@@ -52,7 +52,6 @@ const getBestLapTime = (laps: Lap[]) => {
 }
 
 export const RowsAdmin = ({ data, races, setError, hideInactiveRace }: RowsAdminProps) => {
-  const [boatsLapDisabled, setBoatsLapDisabled] = useState<Record<string, boolean>>({});
   const [boatsLapLoading, setBoatsLapLoading] = useState<Record<string, boolean>>({});
   const [boatsLapConfirm, setBoatsLapConfirm] = useState<Record<string, boolean>>({});
   const [boatsUndoConfirm, setBoatsUndoConfirm] = useState<Record<string, boolean>>({});
@@ -127,7 +126,6 @@ export const RowsAdmin = ({ data, races, setError, hideInactiveRace }: RowsAdmin
       return;
     }
 
-    setBoatsLapDisabled(prev => ({ ...prev, [boatId]: true }));
     setBoatsUndoConfirmDisabled(prev => ({ ...prev, [boatId]: true }));
     const config = {
       method: "POST",
@@ -135,7 +133,6 @@ export const RowsAdmin = ({ data, races, setError, hideInactiveRace }: RowsAdmin
     };
 
     fetch("/api/boats/lap/undo", config).then((res) => {
-      setBoatsLapDisabled(prev => ({ ...prev, [boatId]: false }));
       setBoatsUndoConfirmDisabled(prev => ({ ...prev, [boatId]: false }));
 
       if (!res.ok) {
