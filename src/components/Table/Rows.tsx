@@ -3,6 +3,7 @@ import { Table, Button, SimpleGrid } from "@mantine/core";
 import { BoatWithClass, RaceWithStart, useBoatsFlagged } from "./hooks";
 import { Flag } from "react-feather";
 import { Lap } from "@prisma/client";
+import { round } from "lodash";
 
 type RowsAdminProps = {
   data: BoatWithClass[],
@@ -213,7 +214,7 @@ export const RowsAdmin = ({ data, races, setError, hideInactiveRace }: RowsAdmin
         <Table.Td>{boat.races[0].name.slice(0, 3)}</Table.Td>
         <Table.Td>{boat.class.handicap}</Table.Td>
         <Table.Td>{numLaps}</Table.Td>
-        <Table.Td>{(numLaps * boat.class.handicap, 2).toFixed(2)}</Table.Td>
+        <Table.Td>{round(numLaps * boat.class.handicap, 2)}</Table.Td>
         <Table.Td>
           {
             (hasLaps || raceActive) && start.getTime() > 0
@@ -266,7 +267,7 @@ export const Rows = ({ data }: RowsProps) => {
         <Table.Td>{boat.class.name}</Table.Td>
         <Table.Td>{boat.class.handicap}</Table.Td>
         <Table.Td>{numLaps}</Table.Td>
-        <Table.Td>{(numLaps * boat.class.handicap, 2).toFixed(2)}</Table.Td>
+        <Table.Td>{round(numLaps * boat.class.handicap, 2)}</Table.Td>
         <Table.Td>{getAvgLapTime(boat.laps)}</Table.Td>
         <Table.Td>{getBestLapTime(boat.laps)}</Table.Td>
       </Table.Tr>
