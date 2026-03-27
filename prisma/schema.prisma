@@ -16,8 +16,8 @@ datasource db {
 model Race {
   id         Int      @id @default(autoincrement())
   name       String
-  start      DateTime
-  end        DateTime
+  start      DateTime @db.Timestamptz
+  end        DateTime @db.Timestamptz
   minLapTime Int
   maxLapTime Int
   boats      Boat[]
@@ -42,9 +42,9 @@ model Boat {
 }
 
 model Lap {
-  id        Int      @id @default(autoincrement())
-  start     DateTime
-  end       DateTime?
-  boat      Boat     @relation(fields: [boatId], references: [id])
+  id        Int       @id @default(autoincrement())
+  start     DateTime  @db.Timestamptz
+  end       DateTime? @db.Timestamptz
+  boat      Boat      @relation(fields: [boatId], references: [id])
   boatId    String
 }
