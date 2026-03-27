@@ -42,7 +42,7 @@ export default function AdminTable({ data, races, loading, setError, tableRef }:
         }
       </div>
       <div className={classes.tableContainer}>
-        <ScrollArea h='calc(100vh - 135px)' onScrollPositionChange={({ y }) => setScrolled(y !== 0)}>
+        <ScrollArea h='calc(100vh - 20px)' onScrollPositionChange={({ y }) => setScrolled(y !== 0)}>
           <MTable ref={tableRef} miw={700} mr='none' verticalSpacing="5">
             <MTable.Thead className={cx(classes.header, { [classes.scrolled]: scrolled })}>
               <MTable.Tr>

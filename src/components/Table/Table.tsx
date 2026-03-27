@@ -71,7 +71,7 @@ export default function Table({ autoScroll = false }: Props) {
 
   return (
     <div className={classes.tableContainer}>
-      <ScrollArea h='calc(100vh - 135px)' viewportRef={viewportRef} onScrollPositionChange={({ y }) => setScrolled(y !== 0)}>
+      <ScrollArea h='calc(100vh - 20px)' viewportRef={viewportRef} onScrollPositionChange={({ y }) => setScrolled(y !== 0)}>
         <MTable miw={700} mr='none' verticalSpacing="xs">
           <MTable.Thead className={cx(classes.header, { [classes.scrolled]: scrolled })}>
             <MTable.Tr>
