@@ -152,7 +152,8 @@ export const RowsAdmin = ({ data, races, setError, hideInactiveRace }: RowsAdmin
   const getRowData = (boat: BoatWithClass) => {
     const hasLaps = boat.laps.length > 0;
     const lastLapIndex = boat.laps.length - 1;
-    const start = new Date(hasLaps ? boat.laps[lastLapIndex].start : 0);
+    const raceStartTime = boat.races[0]?.start;
+    const start = new Date(hasLaps ? boat.laps[lastLapIndex].start : (raceStartTime ?? 0));
     const end = new Date(hasLaps && boat.laps[lastLapIndex].end ? boat.laps[lastLapIndex].end : 0);
     const raceIdList = boat.races.map((race) => race.id);
     const hasRaces = raceIdList.length > 0;
@@ -218,7 +219,7 @@ export const RowsAdmin = ({ data, races, setError, hideInactiveRace }: RowsAdmin
         <Table.Td>{(numLaps * boat.class.handicap, 2).toFixed(2)}</Table.Td>
         <Table.Td>
           {
-            hasLaps
+            (hasLaps || raceActive) && start.getTime() > 0
               ? start.toLocaleTimeString('en-GB', {
                 month: 'short',
                 day: 'numeric',

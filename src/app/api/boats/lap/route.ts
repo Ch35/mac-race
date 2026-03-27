@@ -21,20 +21,47 @@ export async function POST(request: Request) {
       },
     });
     const lapEnd = new Date();
+
+    const firstRace = boat.races[0];
+    if (!firstRace) {
+      const errorMsg = 'Boat is not part of any races';
+      console.error({ boatsAddFailed: errorMsg });
+      return NextResponse.json({ error: errorMsg }, { status: 500 });
+    }
+
+    // If no laps exist, create a completed lap from race start to now
+    if (!recentUnfinishedLap) {
+      const lapCount = await prisma.lap.count({ where: { boatId: body.id } });
+      
+      if (lapCount === 0) {
+        // First lap: use race start time as lap start, current time as lap end
+        await prisma.lap.create({
+          data: {
+            start: firstRace.start,
+            end: lapEnd,
+            boatId: body.id,
+          }
+        });
+
+        // Create a new open lap starting now
+        await prisma.lap.create({
+          data: {
+            start: lapEnd,
+            boatId: body.id,
+          }
+        });
+
+        dataEvents.emit();
+        return NextResponse.json({ lap: null }, { status: 200 });
+      }
+    }
+
     const newLap = {
       start: lapEnd,
       boatId: body.id,
     }
 
     if (recentUnfinishedLap) {
-      const firstRace = boat.races[0];
-
-      if (!firstRace) {
-        const errorMsg = 'Boat is not part of any races';
-        console.error({ boatsAddFailed: errorMsg });
-        return NextResponse.json({ error: errorMsg }, { status: 500 });
-      }
-
       // Enforce minimum lap time unless force is set
       if (!body.force) {
         const minLapTime = firstRace.minLapTime;
